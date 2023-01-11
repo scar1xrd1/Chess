@@ -24,4 +24,54 @@ Field::Field()
             board[2 + i][j].add("empty", -1, (char)(97 + j) + to_string((5 - i) + 1));
         }
     }
+
+    //TEST
+    board[5][3].add("pawn", 1, "d3");
+    board[5][5].add("pawn", 1, "f3");
+}
+
+vector<string>& Field::CalculateMoves(string pos)
+{
+    int i = 7 - (pos[1] - '0' - 1);
+    int j = (int)pos[0] - 97;
+    cout << pos << " possible moves: " << endl;
+    return CalculateMoves(i, j);
+    
+}
+
+vector<string>& Field::CalculateMoves(int i, int j)
+{
+    vector<string> possible, temp;
+
+    switch (board[i][j].getType()) {
+    case 5://pawn (peshka)
+        int direction = board[i][j].getSide() * 2 - 1;
+        //moves
+        if (board[i + direction][j].getType() == 6) {//if the square ahead is free
+            temp.push_back(board[i + direction][j].getPos());
+
+            if (i == 7 - (board[i][j].getSide() * 5 + 1)) {//if the pawn haven`t made a move yet then it can move by 2 ahead
+                if (board[i + 2 * direction][j].getType() == 6) {//if the square ahead is free
+                    temp.push_back(board[i + 2 * direction][j].getPos());
+                }
+            }
+        }
+        //beats
+        for (int k = 0; k < 2; k++)
+        {
+            if (0 <= j - 1 + k * 2 <= 7) {
+                if(board[i + direction][j - 1 + k * 2].getType() != 6/*if there`s a figure*/
+                    && board[i + direction][j - 1 + k * 2].getSide() != board[i][j].getSide())//and its the opponent`s figure
+                    temp.push_back(board[i + direction][j - 1 + k * 2].getPos());
+            }
+        }
+    }
+    
+    for (string n : temp) {
+        if (true) {//here must be a function that looks for check if this move made
+            possible.push_back(n);
+            cout << n << endl;
+        }
+    }
+    return possible;
 }

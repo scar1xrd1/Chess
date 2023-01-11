@@ -7,15 +7,19 @@ using namespace std;
 const string types[7] = { "king", "queen", "bishop", "horse", "rook", "pawn" , "empty" };
 class Figure
 {
-public:
-
+private:
     int type;
     int side;//white is 0
     string position;//like e2
+public:
+
+    
 
     Figure();
     void add(string type, int side, string pos);
 
-    vector<string>& CalculateMoves();
+    int getType() { return type; };
+    int getSide() { return side; };
+    string getPos() { return position; };
 };
 
