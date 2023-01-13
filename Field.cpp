@@ -8,9 +8,8 @@ Vector2i Field::posToInts(string pos)
     return Vector2i(i, j);
 }
 
-Field::Field()
+Field::Field() : pawnUpgrade("none"), turn(0)
 {
-    pawnUpgrade = "none";
     for (int i = 0; i < 2; i++) {
         for (int j = 0; j < 2; j++)
         {
@@ -101,7 +100,7 @@ vector<string> Field::CalculateMoves(Vector2i pos)
     
     for (string n : temp) {
         if (true) {//here must be a function that looks for check if this move made
-            if (getFigure(n).getType() != 0) {//you can`t bet the king
+            if (getFigure(n).getType() != 0) {//you can`t beat the king
                 possible.push_back(n);
                 cout << n << endl;
             }
@@ -113,6 +112,7 @@ vector<string> Field::CalculateMoves(Vector2i pos)
 
 void Field::mouseClick(Vector2i pos)
 {
+    
     int i = pos.y / 50;
     int j = pos.x / 50;
     if (clickedX.size() == 0) {//the first click
@@ -143,12 +143,3 @@ void Field::mouseClick(Vector2i pos)
     clickedX.clear();
     clickedY.clear();///annulate the clicks
 }
-
-//vector<string>& Field::operator=(vector<string>& first)
-//{
-//    vector<string> temp;
-//    for (string n : first) {
-//        temp.push_back(n);
-//    }
-//    return temp;
-//}
