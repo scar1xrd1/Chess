@@ -49,17 +49,17 @@ vector<string> Field::CalculateMoves(Vector2i pos)
     int j = pos.y;
     vector<string> possible, temp;
 
+    int dir = board[i][j].getSide() * 2 - 1; // for king and bishop
+    int dirRev = -(board[i][j].getSide() * 2 - 1);
+    int enemySide = board[i][j].getSide(); enemySide = (board[i][j].getSide() + 1) % 2;
+    bool canRev = false;
+
+    if (enemySide == 1 && 8 <= i + dirRev <= 0) canRev = true; // if !out_of_range
+    else if (enemySide == 0 && 0 >= i + dirRev >= 8) canRev = true;
+
     switch (board[i][j].getType()) {
     case 0:// king
     {
-        int dir = board[i][j].getSide() * 2 - 1;
-        int dirRev = -(board[i][j].getSide() * 2 - 1);
-        int enemySide = board[i][j].getSide(); enemySide = (board[i][j].getSide() + 1) % 2;
-        bool canRev = false;
-
-        if (enemySide == 1 && 8 <= i + dirRev <= 0) canRev = true; // if !out_of_range
-        else if (enemySide == 0 && 0 >= i + dirRev >= 8) canRev = true;
-
         //moves
         if (board[i + dir][j].getSide() == enemySide || board[i + dir][j].getType() == 6) //if the square ahead is free
             temp.push_back(board[i + dir][j].getPos());
@@ -77,6 +77,55 @@ vector<string> Field::CalculateMoves(Vector2i pos)
         }
         break;
     }
+    case 2:// bishop (slon)
+    {
+        int len = (int)board[i][j].getPos()[0] - 97;
+        int iter = 2;
+        int iterVert = 2;
+
+        for (int n = 0; n < 8; n++) { // left up 
+            if (board[i - n][j - n].getType() == 6) temp.push_back(board[i - n][j - n].getPos()); // if the corners are free
+
+            if (board[i - n][j - n].getSide() == board[i][j].getSide() && n != 0) break;
+
+            if (board[i - n][j - n].getSide() == enemySide) { // if the square is occupied by a piece from his team
+                temp.push_back(board[i - n][j - n].getPos()); 
+                break;
+            }
+        }
+
+        for (int n = 0; n < 8; n++) { // right down            
+            if (board[i + n][j + n].getType() == 6) temp.push_back(board[i + n][j + n].getPos()); // if the corners are free
+
+            if (board[i + n][j + n].getSide() == board[i][j].getSide() && n != 0) break;
+
+            if (board[i + n][j + n].getSide() == enemySide) { // if the square is occupied by a piece from his team
+                temp.push_back(board[i + n][j + n].getPos());
+                break;
+            }
+        }
+        
+        for (int n = 0; n < 8; n++) { // right up            
+            if (board[i + n][j - n].getType() == 6) temp.push_back(board[i + n][j - n].getPos()); // if the corners are free
+
+            if (board[i + n][j - n].getSide() == board[i][j].getSide() && n != 0) break;
+
+            if (board[i + n][j - n].getSide() == enemySide) { // if the square is occupied by a piece from his team
+                temp.push_back(board[i + n][j - n].getPos());
+                break;
+            }
+        }
+
+        for (int n = 0; n < 8; n++) { // left down            
+            if (board[i - n][j + n].getType() == 6) temp.push_back(board[i - n][j + n].getPos()); // if the corners are free
+
+            if (board[i - n][j + n].getSide() == board[i][j].getSide() && n != 0) break;
+
+            if (board[i - n][j + n].getSide() == enemySide) { // if the square is occupied by a piece from his team
+                temp.push_back(board[i - n][j + n].getPos());
+                break;
+            }
+        }
     case 3://horsey
     {
         for (int k = 0; k < 2; k++)//horizontal vertical
@@ -126,10 +175,11 @@ vector<string> Field::CalculateMoves(Vector2i pos)
             if (getFigure(n).getType() != 0) {//you can`t bet the king
                 possible.push_back(n);
                 cout << n << endl;
-            }
+            }            
         }
         //break;
     }
+    cout << "------------------------\n";
     if (possible.size() == 0) return { "none" };
     return possible;
 }
