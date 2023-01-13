@@ -38,7 +38,8 @@ Field::Field()
     //board[5][3].add("pawn", 1, "d3");
     //board[5][4].add("pawn", 1, "e3");
     //board[5][5].add("pawn", 1, "f3");
-    board[5][5].add("king", 1, "f3");
+    //board[5][5].add("king", 1, "f3");
+    board[4][4].add("horse", 1, "e4");
 
 }
 
@@ -65,10 +66,10 @@ vector<string> Field::CalculateMoves(Vector2i pos)
         if (canRev && board[i + dirRev][j].getSide() == enemySide || board[i + dirRev][j].getType() == 6) //if the square behind is free
             temp.push_back(board[i + dirRev][j].getPos());
 
-        for (int k = 0; k < 2; k++) { 
-            if(board[i][j - 1 + k * 2].getSide() == enemySide || board[i][j - 1 + k * 2].getType() == 6) // if the flanks are free 
+        for (int k = 0; k < 2; k++) {
+            if (board[i][j - 1 + k * 2].getSide() == enemySide || board[i][j - 1 + k * 2].getType() == 6) // if the flanks are free 
                 temp.push_back(board[i][j - 1 + k * 2].getPos());
-            
+
             if (board[i + dir][j - 1 + k * 2].getSide() == enemySide || board[i + dir][j - 1 + k * 2].getType() == 6) // if the corners are free
                 temp.push_back(board[i + dir][j - 1 + k * 2].getPos());
             if (canRev && board[i + dirRev][j - 1 + k * 2].getSide() == enemySide || board[i + dirRev][j - 1 + k * 2].getType() == 6) // if the corners are free
@@ -125,10 +126,28 @@ vector<string> Field::CalculateMoves(Vector2i pos)
                 break;
             }
         }
+    case 3://horsey
+    {
+        for (int k = 0; k < 2; k++)//horizontal vertical
+        {
+            for (int l = 0; l< 2; l++)//front back
+            {
+                for (int m = 0; m < 2; m++)//2 branches
+                {
+                    int m1 = i * (1 - k) + j * k + 2 * m - 1;
 
+                    int l1 = j * (1 - k) + i * k + 2 * (l * 2 - 1);
+                    if (l1 >= 0 && m1 >= 0 && l1 <= 7 && m1 <= 7)
+                        if(board[m1 * (1 - k) + l1 * k][l1 * (1 - k) + m1 * k].getSide() != board[i][j].getSide())
+                        //variable k "turns" the checked combination by 90 degrees
+                        temp.push_back(board[m1 * (1 - k) + l1 * k][l1 * (1 - k) + m1 * k].getPos());
+                }
+            }
+        }
         break;
     }
     case 5://pawn (peshka)
+    {
         int direction = board[i][j].getSide() * 2 - 1;
         //moves
         if (board[i + direction][j].getType() == 6) {//if the square ahead is free
@@ -144,13 +163,13 @@ vector<string> Field::CalculateMoves(Vector2i pos)
         for (int k = 0; k < 2; k++)
         {
             if (0 <= j - 1 + k * 2 <= 7) {
-                if(board[i + direction][j - 1 + k * 2].getType() != 6/*if there`s a figure*/
+                if (board[i + direction][j - 1 + k * 2].getType() != 6/*if there`s a figure*/
                     && board[i + direction][j - 1 + k * 2].getSide() != board[i][j].getSide())//and its the opponent`s figure
                     temp.push_back(board[i + direction][j - 1 + k * 2].getPos());
             }
         }
     }
-    
+    }
     for (string n : temp) {
         if (true) {//here must be a function that looks for check if this move made
             if (getFigure(n).getType() != 0) {//you can`t bet the king
@@ -158,6 +177,7 @@ vector<string> Field::CalculateMoves(Vector2i pos)
                 cout << n << endl;
             }            
         }
+        //break;
     }
     cout << "------------------------\n";
     if (possible.size() == 0) return { "none" };
