@@ -17,6 +17,7 @@ public:
 
     Figure();
     void add(string type, int side, string pos);
+    void enPassant() { this->type = 7;}
     void pawnUpgrade(int type) { this->type = type; }
 
     int getType() { return type; };

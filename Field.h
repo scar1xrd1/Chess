@@ -18,6 +18,7 @@ private:
     vector<int> clickedY;
     string pawnUpgrade;//contains position of the pawn that reached the edge
     int turn;//which side is moving
+    string enPassant;//en passant position; "none" by default
 public:
     Vector2i posToInts(string pos);
     Figure& getFigure(Vector2i pos) { return board[pos.x][pos.y]; }

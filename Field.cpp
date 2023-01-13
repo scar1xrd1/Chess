@@ -8,7 +8,7 @@ Vector2i Field::posToInts(string pos)
     return Vector2i(i, j);
 }
 
-Field::Field() : pawnUpgrade("none"), turn(0)
+Field::Field() : pawnUpgrade("none"), turn(0), enPassant("none")
 {
     for (int i = 0; i < 2; i++) {
         for (int j = 0; j < 2; j++)
@@ -189,7 +189,9 @@ void Field::mouseClick(Vector2i pos)
     
     int i = pos.y / 50;
     int j = pos.x / 50;
+    
     if (clickedX.size() == 0) {//the first click
+        if (turn != board[i][j].getSide()) return;//you can`t move in the opponent`s turn
         if (board[i][j].getType() != 6) {//and it isn`t empty
             clickedX.push_back(j);
             clickedY.push_back(i);//push the button position in board to vector
@@ -198,7 +200,14 @@ void Field::mouseClick(Vector2i pos)
     }
     else if (!(i == clickedY[0] && j == clickedX[0])) {//the second clicked tile is not the same as first
         vector<string> possible = CalculateMoves(Vector2i(clickedY[0], clickedX[0]));
-        if (find(possible.begin(), possible.end(), board[i][j].getPos()) != possible.end()) {
+        if (find(possible.begin(), possible.end(), board[i][j].getPos()) != possible.end()) {//target is succesful
+            
+            if (board[clickedY[0]][clickedX[0]].getType() == 5) {//pawn
+                if(board[i][j].getType() == 7) {
+                    //board[i][j].getSide() * 2 - 1 converts 0 to - 1 and 1 to 1 to know direction of pawn moving
+                    getFigure(Vector2i(i + ((turn + 1) % 2) * 2 - 1, j)).makeEmpty();
+                }
+            }
             if (board[i][j].getType() != 6) board[i][j].makeEmpty();
 
             std::swap(board[i][j], board[clickedY[0]][clickedX[0]]);
@@ -212,8 +221,26 @@ void Field::mouseClick(Vector2i pos)
             Figure newPos = board[i][j];
             if (newPos.getType() == 5 && (newPos.getPos()[1] == '1' || newPos.getPos()[1] == '8'))//it`s pawn on the edge line
                 pawnUpgrade = newPos.getPos();
+            
+            if (newPos.getType() == 5) {//pawn
+                int horizontalStart = posToInts(board[clickedY[0]][clickedX[0]].getPos()).x;//i coordinate of start position
+                int horizontalNow = posToInts(newPos.getPos()).x;//i coordinate of current position
+                
+                if (horizontalNow == 4 - turn//pawn is 2 moves from start position
+                    && horizontalStart == 1 + 5 * ((1 - turn))) {//and it moved from start
+                    board[horizontalStart + ((turn)) * 2 - 1][j].enPassant();//make the middle square en passant
+                    enPassant = board[horizontalStart + ((turn)) * 2 - 1][j].getPos();
+                }
+            }
+
+            turn = (turn + 1) % 2;
+            if (enPassant != "none" && getFigure(enPassant).getSide() == turn) {//on the next move after the en passant make it empty
+                if(getFigure(enPassant).getType() == 7) getFigure(enPassant).makeEmpty();
+                enPassant = "none";
+            }
         }
     }
     clickedX.clear();
     clickedY.clear();///annulate the clicks
+    
 }
