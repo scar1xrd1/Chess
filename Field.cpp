@@ -88,7 +88,7 @@ vector<string> Field::CalculateMoves(Vector2i pos)
             if (board[i - n][j - n].getSide() == board[i][j].getSide() && n != 0) break;
 
             if (board[i - n][j - n].getSide() == enemySide) { // if the square is occupied by a piece from his team
-                temp.push_back(board[i - n][j - n].getPos()); 
+                temp.push_back(board[i - n][j - n].getPos());
                 break;
             }
         }
@@ -103,7 +103,7 @@ vector<string> Field::CalculateMoves(Vector2i pos)
                 break;
             }
         }
-        
+
         for (int n = 0; n < 8; n++) { // right up            
             if (board[i + n][j - n].getType() == 6) temp.push_back(board[i + n][j - n].getPos()); // if the corners are free
 
@@ -125,11 +125,12 @@ vector<string> Field::CalculateMoves(Vector2i pos)
                 break;
             }
         }
+    }
     case 3://horsey
     {
         for (int k = 0; k < 2; k++)//horizontal vertical
         {
-            for (int l = 0; l< 2; l++)//front back
+            for (int l = 0; l < 2; l++)//front back
             {
                 for (int m = 0; m < 2; m++)//2 branches
                 {
@@ -137,9 +138,9 @@ vector<string> Field::CalculateMoves(Vector2i pos)
 
                     int l1 = j * (1 - k) + i * k + 2 * (l * 2 - 1);
                     if (l1 >= 0 && m1 >= 0 && l1 <= 7 && m1 <= 7)
-                        if(board[m1 * (1 - k) + l1 * k][l1 * (1 - k) + m1 * k].getSide() != board[i][j].getSide())
-                        //variable k "turns" the checked combination by 90 degrees
-                        temp.push_back(board[m1 * (1 - k) + l1 * k][l1 * (1 - k) + m1 * k].getPos());
+                        if (board[m1 * (1 - k) + l1 * k][l1 * (1 - k) + m1 * k].getSide() != board[i][j].getSide())
+                            //variable k "turns" the checked combination by 90 degrees
+                            temp.push_back(board[m1 * (1 - k) + l1 * k][l1 * (1 - k) + m1 * k].getPos());
                 }
             }
         }
