@@ -18,7 +18,6 @@ using namespace std;
 //}
 
 int main() {
-    
     RenderWindow app(VideoMode(400, 400), "chess");
     //app.setFramerateLimit(60);
 
@@ -37,7 +36,9 @@ int main() {
 
     Sprite square(t3);
     Field field;
-    field.CalculateMoves("e2");
+
+    field.CalculateMoves("e1");
+
     while (app.isOpen()) {
         //app.clear();
         Event e;

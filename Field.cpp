@@ -38,6 +38,8 @@ Field::Field()
     //board[5][3].add("pawn", 1, "d3");
     //board[5][4].add("pawn", 1, "e3");
     //board[5][5].add("pawn", 1, "f3");
+    board[5][5].add("king", 1, "f3");
+
 }
 
 vector<string> Field::CalculateMoves(Vector2i pos)
@@ -47,6 +49,33 @@ vector<string> Field::CalculateMoves(Vector2i pos)
     vector<string> possible, temp;
 
     switch (board[i][j].getType()) {
+    case 0:// king
+    {
+        int dir = board[i][j].getSide() * 2 - 1;
+        int dirRev = -(board[i][j].getSide() * 2 - 1);
+        int enemySide = board[i][j].getSide(); enemySide = (board[i][j].getSide() + 1) % 2;
+        bool canRev = false;
+
+        if (enemySide == 1 && 8 <= i + dirRev <= 0) canRev = true; // if !out_of_range
+        else if (enemySide == 0 && 0 >= i + dirRev >= 8) canRev = true;
+
+        //moves
+        if (board[i + dir][j].getSide() == enemySide || board[i + dir][j].getType() == 6) //if the square ahead is free
+            temp.push_back(board[i + dir][j].getPos());
+        if (canRev && board[i + dirRev][j].getSide() == enemySide || board[i + dirRev][j].getType() == 6) //if the square behind is free
+            temp.push_back(board[i + dirRev][j].getPos());
+
+        for (int k = 0; k < 2; k++) { 
+            if(board[i][j - 1 + k * 2].getSide() == enemySide || board[i][j - 1 + k * 2].getType() == 6) // if the flanks are free 
+                temp.push_back(board[i][j - 1 + k * 2].getPos());
+            
+            if (board[i + dir][j - 1 + k * 2].getSide() == enemySide || board[i + dir][j - 1 + k * 2].getType() == 6) // if the corners are free
+                temp.push_back(board[i + dir][j - 1 + k * 2].getPos());
+            if (canRev && board[i + dirRev][j - 1 + k * 2].getSide() == enemySide || board[i + dirRev][j - 1 + k * 2].getType() == 6) // if the corners are free
+                temp.push_back(board[i + dirRev][j - 1 + k * 2].getPos());
+        }
+        break;
+    }
     case 5://pawn (peshka)
         int direction = board[i][j].getSide() * 2 - 1;
         //moves
