@@ -8,14 +8,30 @@
 using namespace sf;
 using namespace std;
 
+
+
 class Field
 {
-public:
+private:
     Figure board[8][8];
+    vector<int> clickedX;
+    vector<int> clickedY;
+    string pawnUpgrade;//contains position of the pawn that reached the edge
+public:
+    Vector2i posToInts(string pos);
+    Figure& getFigure(Vector2i pos) { return board[pos.x][pos.y]; }
+    Figure& getFigure(string pos) { return getFigure(posToInts(pos)); };
+    string getPawnUpgrade() { return pawnUpgrade; }
+    
+    void setPawnUpgrade(string val) { pawnUpgrade = val; }
 
     Field();
 
-    vector<string>& CalculateMoves(string pos);
-    vector<string>& CalculateMoves(int i, int j);
+    vector<string> CalculateMoves(string pos) { return CalculateMoves(posToInts(pos)); };
+    vector<string> CalculateMoves(Vector2i pos);
+
+    void mouseClick(Vector2i pos);
+    //void operator = (vector<string>& first, vector<string>& second);
+
 };
 

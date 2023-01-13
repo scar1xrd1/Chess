@@ -1,7 +1,16 @@
 #include "Field.h"
 
+Vector2i Field::posToInts(string pos)
+{
+    int i = 7 - (pos[1] - '0' - 1);
+    int j = (int)pos[0] - 97;
+    //cout << pos << " possible moves: " << endl;
+    return Vector2i(i, j);
+}
+
 Field::Field()
 {
+    pawnUpgrade = "none";
     for (int i = 0; i < 2; i++) {
         for (int j = 0; j < 2; j++)
         {
@@ -26,21 +35,15 @@ Field::Field()
     }
 
     //TEST
-    board[5][3].add("pawn", 1, "d3");
-    board[5][5].add("pawn", 1, "f3");
+    //board[5][3].add("pawn", 1, "d3");
+    //board[5][4].add("pawn", 1, "e3");
+    //board[5][5].add("pawn", 1, "f3");
 }
 
-vector<string>& Field::CalculateMoves(string pos)
+vector<string> Field::CalculateMoves(Vector2i pos)
 {
-    int i = 7 - (pos[1] - '0' - 1);
-    int j = (int)pos[0] - 97;
-    cout << pos << " possible moves: " << endl;
-    return CalculateMoves(i, j);
-    
-}
-
-vector<string>& Field::CalculateMoves(int i, int j)
-{
+    int i = pos.x;
+    int j = pos.y;
     vector<string> possible, temp;
 
     switch (board[i][j].getType()) {
@@ -69,9 +72,54 @@ vector<string>& Field::CalculateMoves(int i, int j)
     
     for (string n : temp) {
         if (true) {//here must be a function that looks for check if this move made
-            possible.push_back(n);
-            cout << n << endl;
+            if (getFigure(n).getType() != 0) {//you can`t bet the king
+                possible.push_back(n);
+                cout << n << endl;
+            }
         }
     }
+    if (possible.size() == 0) return { "none" };
     return possible;
 }
+
+void Field::mouseClick(Vector2i pos)
+{
+    int i = pos.y / 50;
+    int j = pos.x / 50;
+    if (clickedX.size() == 0) {//the first click
+        if (board[i][j].getType() != 6) {//and it isn`t empty
+            clickedX.push_back(j);
+            clickedY.push_back(i);//push the button position in board to vector
+            return;
+        }
+    }
+    else if (!(i == clickedY[0] && j == clickedX[0])) {//the second clicked tile is not the same as first
+        vector<string> possible = CalculateMoves(Vector2i(clickedY[0], clickedX[0]));
+        if (find(possible.begin(), possible.end(), board[i][j].getPos()) != possible.end()) {
+            if (board[i][j].getType() != 6) board[i][j].makeEmpty();
+
+            std::swap(board[i][j], board[clickedY[0]][clickedX[0]]);
+
+            string temp = board[i][j].getPos();
+            
+            board[i][j].setPos(board[clickedY[0]][clickedX[0]].getPos());
+
+            board[clickedY[0]][clickedX[0]].setPos(temp);//swap button coordinates
+
+            Figure newPos = board[i][j];
+            if (newPos.getType() == 5 && (newPos.getPos()[1] == '1' || newPos.getPos()[1] == '8'))//it`s pawn on the edge line
+                pawnUpgrade = newPos.getPos();
+        }
+    }
+    clickedX.clear();
+    clickedY.clear();///annulate the clicks
+}
+
+//vector<string>& Field::operator=(vector<string>& first)
+//{
+//    vector<string> temp;
+//    for (string n : first) {
+//        temp.push_back(n);
+//    }
+//    return temp;
+//}
