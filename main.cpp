@@ -77,7 +77,7 @@ int main() {
             for (int j = 0; j < 8; j++)
             {
                 Figure f = field.getFigure(Vector2i(i, j));
-                if (f.getType() != 6) {
+                if (f.getType() != 6 && f.getType() != 7) {
                     figure.setTextureRect(IntRect(50 * f.getType(), f.getSide() * 50, 50, 50));
                     //figure.scale(0.5f, 0.5f);
                     //figure.setColor(Color(255, 255, 255, p.alpha));

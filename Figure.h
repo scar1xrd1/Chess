@@ -4,7 +4,7 @@
 
 using namespace std;
 
-const string types[7] = { "king", "queen", "bishop", "horse", "rook", "pawn" , "empty" };
+const string types[8] = { "king", "queen", "bishop", "horse", "rook", "pawn" , "empty", "en passant"};
 class Figure
 {
 private:
@@ -17,6 +17,7 @@ public:
 
     Figure();
     void add(string type, int side, string pos);
+    void enPassant() { this->type = 7;}
     void pawnUpgrade(int type) { this->type = type; }
 
     int getType() { return type; };
