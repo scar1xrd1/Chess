@@ -8,18 +8,9 @@
 using namespace sf;
 using namespace std;
 
-//void Fieloperator=(vector<string>& first)
-//{
-//    vector<string> temp;
-//    for (string n : first) {
-//        temp.push_back(n);
-//    }
-//    return temp;
-//}
-
 int main() {
+
     RenderWindow app(VideoMode(400, 400), "chess");
-    //app.setFramerateLimit(60);
 
     Texture t1, t2, t3;
     t1.loadFromFile("images/board.png");
@@ -36,35 +27,35 @@ int main() {
 
     Sprite square(t3);
     Field field;
-
-    field.CalculateMoves("e1");
+    field.CalculateMoves("e2");
 
     while (app.isOpen()) {
-        //app.clear();
+
         Event e;
-        while (app.pollEvent(e))
-        {
+        while (app.pollEvent(e)) {
+
             if (e.type == Event::Closed)
                 app.close();
             else if (e.type == Event::MouseButtonPressed) {
+
                 if (e.key.code == Mouse::Left) {
+
                     if (field.getPawnUpgrade() == "none") {
                         cout << Mouse::getPosition(app).x << endl;
                         field.mouseClick(Mouse::getPosition(app));
                     }
                     else {
-                        //cout << Mouse::getPosition(app).x;
                         int mouseX = Mouse::getPosition(app).x - 145;
-                        int mouseY = Mouse::getPosition(app).y - 145;//mouse position within the choosing square
-                        cout << mouseX << endl;
-                        cout << mouseY << endl;
-                        cout << (50 < mouseX && mouseX < 60 )<< endl;
+                        int mouseY = Mouse::getPosition(app).y - 145;
+
+                        cout << (50 < mouseX && mouseX < 60) << endl;
                         cout << (50 < mouseY && mouseY < 60) << endl;
+
                         Figure* curr = &field.getFigure(field.getPawnUpgrade());
                         if (!(50 < mouseX && mouseX < 60) && !(50 < mouseY && mouseY < 60)
-                            && (0 < mouseX && mouseX < 110) && (0 < mouseY && mouseY < 110)) {//if gaps aren`t hit
-                            curr->pawnUpgrade(mouseY / 60 * 2 + mouseX / 60 + 1);//set new figure type
-                            cout << "bebra" << endl;
+                            && (0 < mouseX && mouseX < 110) && (0 < mouseY && mouseY < 110)) { // If borders are not affected
+                            curr->pawnUpgrade(mouseY / 60 * 2 + mouseX / 60 + 1); // Set the new figure type
+                            cout << "Figure changed" << endl;
                             field.setPawnUpgrade("none");
                         }
                     }
@@ -74,21 +65,15 @@ int main() {
         }
         app.draw(background);
         for (int i = 0; i < 8; i++)
-            for (int j = 0; j < 8; j++)
-            {
+            for (int j = 0; j < 8; j++) {
                 Figure f = field.getFigure(Vector2i(i, j));
-                if (f.getType() != 6 && f.getType() != 7) {
+                if (f.getType() != 6) {
                     figure.setTextureRect(IntRect(50 * f.getType(), f.getSide() * 50, 50, 50));
-                    //figure.scale(0.5f, 0.5f);
-                    //figure.setColor(Color(255, 255, 255, p.alpha));
                     figure.setPosition(j * 50, i * 50);
-                    //gems.move(offset.x - ts, offset.y - ts);
-                    //cout << i << j << endl;
                     app.draw(figure);
                 }
-                
             }
-        if (field.getPawnUpgrade() != "none") {//choosing square drawing
+        if (field.getPawnUpgrade() != "none") {// Selecting a square to draw
             square.setPosition(135, 135);
             app.draw(square);
             for (int i = 0; i < 2; i++) {
@@ -101,7 +86,4 @@ int main() {
         }
         app.display();
     }
-
-        //app.display();
-    
 }
