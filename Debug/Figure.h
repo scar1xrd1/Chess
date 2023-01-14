@@ -9,8 +9,8 @@ const string types[7] = { "king", "queen", "bishop", "horse", "rook", "pawn" , "
 class Figure{
 private:
     int type;
-    int side;// ÷¬≈“ ‘»√”–џ (0 - белые, 1 - чЄрные)
-    string position;//“ип e2
+    int side;// FIGURE COLOR (0 - white, 1 - black)
+    string position;// Like e2
 public:
 
     Figure();

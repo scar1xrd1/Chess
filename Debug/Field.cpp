@@ -8,7 +8,7 @@ Vector2i Field::posToInts(string pos){
 
 Field::Field(){
     pawnUpgrade = "none";
-    //ОТРИСОВКА ФИГУР И ПУСТЫХ КЛЕТОЧЕК
+    //DRAWING FIGURES AND EMPTY CELLS
     for (int i = 0; i < 2; i++) { 
         for (int j = 0; j < 2; j++){
             board[j * 7][abs(i * 7 - 0)].add("rook", 1 - j, (char)(97 + abs(i * 7 - 0)) + to_string((1 - j) * 7 + 1));
@@ -34,56 +34,199 @@ vector<string> Field::CalculateMoves(Vector2i pos){
     vector<string> possible, temp;
 
     int direction;
-    int n = 1;
+
+    int dir = board[i][j].getSide() * 2 - 1; // for king and bishop
+    int dirRev = -(board[i][j].getSide() * 2 - 1);
+    int enemySide = board[i][j].getSide(); 
+    enemySide = (board[i][j].getSide() + 1) % 2;
+    bool canRev = false;
+
+    if (enemySide == 1 && 8 <= i + dirRev <= 0) canRev = true; // if !out_of_range
+    else if (enemySide == 0 && 0 >= i + dirRev >= 8) canRev = true;
+
+    int len = (int)board[i][j].getPos()[0] - 97;
+    int iter = 2;
+    int iterVert = 2;
 
     switch (board[i][j].getType()) {
 
-    case 4: // ЛАДЬЯ
+    case 1: // QUEEN
 
         direction = board[i][j].getSide() * 2 - 1;
 
-        if (board[i + n * direction][j].getType() == 6) {// если квадрат ВПЕРЕДИ пустой
-            temp.push_back(board[i + n * direction][j].getPos());
-        }
-        if (board[i - n * direction][j].getType() == 6) {// если квадрат СЗАДИ пустой
-            temp.push_back(board[i - n * direction][j].getPos());
-        }
-        if (board[i][j + n * direction].getType() == 6) {// если квадрат СЛЕВА пустой
-            temp.push_back(board[i][j + n * direction].getPos());
-        }
-        if (board[i][j - n * direction].getType() == 6) {// если квадрат СПРАВА пустой
-            temp.push_back(board[i][j - n * direction].getPos());
-        }
+        for (int n = 0; n < 8; n++) { // Square AHEAD
 
-       for (int k = 0; k < 2; k++) {
-            if ((j - 1 + k * 2) >= 0 && (j - 1 + k * 2) <= 7) {
+            if (board[i + n * direction][j].getSide() == board[i][j].getSide() && n != 0) 
+                break;
 
-                //если ВПЕРЕДИ фигура и это фигура противника
-                if (board[i + n * direction][j].getType() != 6 && board[i + n * direction][j].getSide() != board[i][j].getSide()) {
-                    temp.push_back(board[i + n * direction][j].getPos());
-                }
-                //если СЗАДИ фигура и это фигура противника
-                if (board[i - n * direction][j].getType() != 6 && board[i - n * direction][j].getSide() != board[i][j].getSide()) {
-                    temp.push_back(board[i - n * direction][j].getPos());
-                }
-                //если СЛЕВА фигура и это фигура противника
-                if (board[i][j + n * direction].getType() != 6 && board[i][j + n * direction].getSide() != board[i][j].getSide()) {
-                    temp.push_back(board[i][j + n * direction].getPos());
-                }
-                //если СПРАВА фигура и это фигура противника
-                if (board[i][j - n * direction].getType() != 6 && board[i][j - n * direction].getSide() != board[i][j].getSide()) {
-                    temp.push_back(board[i][j - n * direction].getPos());
-                }
+            if (board[i + n * direction][j].getType() == 6)
+                temp.push_back(board[i + n * direction][j].getPos());
+
+            if (board[i + n * direction][j].getSide() == enemySide) {
+                temp.push_back(board[i + n * direction][j].getPos());
+                break;
             }
         }
 
-         
-        
+        for (int n = 0; n < 8; n++) { // square BACK
 
-    case 5:// ПЕШКА
+            if (board[i - n * direction][j].getSide() == board[i][j].getSide() && n != 0)
+                break;
+
+            if (board[i - n * direction][j].getType() == 6)
+                temp.push_back(board[i - n * direction][j].getPos());
+
+            if (board[i - n * direction][j].getSide() == enemySide) {
+                temp.push_back(board[i - n * direction][j].getPos());
+                break;
+            }
+        }
+
+        for (int n = 0; n < 8; n++) { // LEFT square 
+
+            if (board[i][j + n * direction].getSide() == board[i][j].getSide() && n != 0)
+                break;
+
+            if (board[i][j + n * direction].getType() == 6)
+                temp.push_back(board[i][j + n * direction].getPos());
+
+            if (board[i][j + n * direction].getSide() == enemySide) {
+                temp.push_back(board[i][j + n * direction].getPos());
+                break;
+            }
+        }
+
+        for (int n = 0; n < 8; n++) { // RIGHT square 
+
+            if (board[i][j - n * direction].getSide() == board[i][j].getSide() && n != 0)
+                break;
+
+            if (board[i][j - n * direction].getType() == 6)
+                temp.push_back(board[i][j - n * direction].getPos());
+
+            if (board[i][j - n * direction].getSide() == enemySide) {
+                temp.push_back(board[i][j - n * direction].getPos());
+                break;
+            }
+        }
+
+        for (int n = 0; n < 8; n++) {// LEFT UP square
+            if (board[i - n][j - n].getType() == 6) 
+                temp.push_back(board[i - n][j - n].getPos()); 
+
+            if (board[i - n][j - n].getSide() == board[i][j].getSide() && n != 0)
+                break;
+
+            if (board[i - n][j - n].getSide() == enemySide) { 
+                temp.push_back(board[i - n][j - n].getPos());
+                break;
+            }
+        }
+
+        for (int n = 0; n < 8; n++) { // RIGHT DOWN square            
+            if (board[i + n][j + n].getType() == 6) 
+                temp.push_back(board[i + n][j + n].getPos()); 
+
+            if (board[i + n][j + n].getSide() == board[i][j].getSide() && n != 0) 
+                break;
+
+            if (board[i + n][j + n].getSide() == enemySide) { 
+                temp.push_back(board[i + n][j + n].getPos());
+                break;
+            }
+        }
+
+        for (int n = 0; n < 8; n++) { // RIGHT UP square           
+            if (board[i + n][j - n].getType() == 6) 
+                temp.push_back(board[i + n][j - n].getPos()); 
+
+            if (board[i + n][j - n].getSide() == board[i][j].getSide() && n != 0) 
+                break;
+
+            if (board[i + n][j - n].getSide() == enemySide) { 
+                temp.push_back(board[i + n][j - n].getPos());
+                break;
+            }
+        }
+
+        for (int n = 0; n < 8; n++) { // LEFT DOWN square        
+            if (board[i - n][j + n].getType() == 6) 
+                temp.push_back(board[i - n][j + n].getPos());
+
+            if (board[i - n][j + n].getSide() == board[i][j].getSide() && n != 0) 
+                break;
+
+            if (board[i - n][j + n].getSide() == enemySide) {
+                temp.push_back(board[i - n][j + n].getPos());
+                break;
+            }
+        }
+
+    case 4: // ROOK
+
+        direction = board[i][j].getSide() * 2 - 1;
+
+        for (int n = 0; n < 8; n++) { // Square AHEAD
+
+            if (board[i + n * direction][j].getSide() == board[i][j].getSide() && n != 0)
+                break;
+
+            if (board[i + n * direction][j].getType() == 6)
+                temp.push_back(board[i + n * direction][j].getPos());
+
+            if (board[i + n * direction][j].getSide() == enemySide) {
+                temp.push_back(board[i + n * direction][j].getPos());
+                break;
+            }
+        }
+
+        for (int n = 0; n < 8; n++) { // square BACK
+
+            if (board[i - n * direction][j].getSide() == board[i][j].getSide() && n != 0)
+                break;
+
+            if (board[i - n * direction][j].getType() == 6)
+                temp.push_back(board[i - n * direction][j].getPos());
+
+            if (board[i - n * direction][j].getSide() == enemySide) {
+                temp.push_back(board[i - n * direction][j].getPos());
+                break;
+            }
+        }
+
+        for (int n = 0; n < 8; n++) { // LEFT square 
+
+            if (board[i][j + n * direction].getSide() == board[i][j].getSide() && n != 0)
+                break;
+
+            if (board[i][j + n * direction].getType() == 6)
+                temp.push_back(board[i][j + n * direction].getPos());
+
+            if (board[i][j + n * direction].getSide() == enemySide) {
+                temp.push_back(board[i][j + n * direction].getPos());
+                break;
+            }
+        }
+
+        for (int n = 0; n < 8; n++) { // RIGHT square 
+
+            if (board[i][j - n * direction].getSide() == board[i][j].getSide() && n != 0) 
+                break;
+
+            if (board[i][j - n * direction].getType() == 6) 
+                temp.push_back(board[i][j - n * direction].getPos());
+
+            if (board[i][j - n * direction].getSide() == enemySide) {
+                temp.push_back(board[i][j - n * direction].getPos());
+                break;
+            }
+        }
+
+       
+    case 5:// PAWN
         direction = board[i][j].getSide() * 2 - 1;
         //moves
-        if (board[i + direction][j].getType() == 6) {//if the square ahead is free
+        if (board[i + direction][j].getType() == 6) {// if the square AHEAD is empty
             temp.push_back(board[i + direction][j].getPos());
 
             if (i == 7 - (board[i][j].getSide() * 5 + 1)) { //if the pawn haven`t made a move yet then it can move by 2 ahead

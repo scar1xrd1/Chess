@@ -53,8 +53,8 @@ int main() {
 
                         Figure* curr = &field.getFigure(field.getPawnUpgrade());
                         if (!(50 < mouseX && mouseX < 60) && !(50 < mouseY && mouseY < 60)
-                            && (0 < mouseX && mouseX < 110) && (0 < mouseY && mouseY < 110)) { // Если не задеты границы
-                            curr->pawnUpgrade(mouseY / 60 * 2 + mouseX / 60 + 1); // Устанавливаем новый тип фигуры
+                            && (0 < mouseX && mouseX < 110) && (0 < mouseY && mouseY < 110)) { // If borders are not affected
+                            curr->pawnUpgrade(mouseY / 60 * 2 + mouseX / 60 + 1); // Set the new figure type
                             cout << "Figure changed" << endl;
                             field.setPawnUpgrade("none");
                         }
@@ -73,7 +73,7 @@ int main() {
                     app.draw(figure);
                 }
             }
-        if (field.getPawnUpgrade() != "none") {// Выбор квадрата для отрисовки
+        if (field.getPawnUpgrade() != "none") {// Selecting a square to draw
             square.setPosition(135, 135);
             app.draw(square);
             for (int i = 0; i < 2; i++) {
