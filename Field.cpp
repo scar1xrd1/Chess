@@ -38,7 +38,7 @@ Field::Field() : pawnUpgrade("none"), turn(0), enPassant("none")
     //board[5][4].add("pawn", 1, "e3");
     //board[5][5].add("pawn", 1, "f3");
     //board[5][5].add("king", 1, "f3");
-    board[4][4].add("horse", 1, "e4");
+    //board[4][4].add("horse", 1, "e4");
 
 }
 
@@ -47,6 +47,8 @@ vector<string> Field::CalculateMoves(Vector2i pos)
     int i = pos.x;
     int j = pos.y;
     vector<string> possible, temp;
+
+    int direction;
 
     int dir = board[i][j].getSide() * 2 - 1; // for king and bishop
     int dirRev = -(board[i][j].getSide() * 2 - 1);
@@ -76,39 +78,49 @@ vector<string> Field::CalculateMoves(Vector2i pos)
         }
         break;
     }
-    case 1: // QUEEN
-    {
-        int direction = board[i][j].getSide() * 2 - 1;
+    case 1:// QUEEN
+
+        direction = board[i][j].getSide() * 2 - 1;
+
 
         for (int n = 0; n < 8; n++) { // Square AHEAD
 
-            if (board[i + n * direction][j].getSide() == board[i][j].getSide() && n != 0)
+            if (i + n * direction < 0 || j < 0)
                 break;
 
-            if (board[i + n * direction][j].getType() == 6)
+            if (board[i + n * direction][j].getSide() == board[i][j].getSide() && n != 0 /*&& direction == -1*/)
+                break;
+
+            if (board[i + n * direction][j].getType() == 6) {
                 temp.push_back(board[i + n * direction][j].getPos());
+            }
 
             if (board[i + n * direction][j].getSide() == enemySide) {
                 temp.push_back(board[i + n * direction][j].getPos());
-                break;
             }
         }
 
-        for (int n = 0; n < 8; n++) { // square BACK
+        for (int n = 0; n < 8; n++) { // Square BACK
+
+            if (i - n * direction < 0 || j < 0)
+                break;
 
             if (board[i - n * direction][j].getSide() == board[i][j].getSide() && n != 0)
                 break;
 
-            if (board[i - n * direction][j].getType() == 6)
+            if (board[i - n * direction][j].getType() == 6) {
                 temp.push_back(board[i - n * direction][j].getPos());
+            }
 
             if (board[i - n * direction][j].getSide() == enemySide) {
                 temp.push_back(board[i - n * direction][j].getPos());
-                break;
             }
         }
 
         for (int n = 0; n < 8; n++) { // LEFT square 
+
+            if (i < 0 || j + n * direction < 0)
+                break;
 
             if (board[i][j + n * direction].getSide() == board[i][j].getSide() && n != 0)
                 break;
@@ -124,6 +136,9 @@ vector<string> Field::CalculateMoves(Vector2i pos)
 
         for (int n = 0; n < 8; n++) { // RIGHT square 
 
+            if (i < 0 || j - n * direction < 0)
+                break;
+
             if (board[i][j - n * direction].getSide() == board[i][j].getSide() && n != 0)
                 break;
 
@@ -136,7 +151,10 @@ vector<string> Field::CalculateMoves(Vector2i pos)
             }
         }
 
-        for (int n = 0; n < 8; n++) {// LEFT UP square
+        for (int n = 0; n < 8; n++) { // LEFT UP SQUARE 
+            if (i - n < 0 || j - n < 0)
+                break;
+
             if (board[i - n][j - n].getType() == 6)
                 temp.push_back(board[i - n][j - n].getPos());
 
@@ -149,7 +167,10 @@ vector<string> Field::CalculateMoves(Vector2i pos)
             }
         }
 
-        for (int n = 0; n < 8; n++) { // RIGHT DOWN square            
+        for (int n = 0; n < 8; n++) { // RIGHT DOWN SQUARE    
+            if (i + n > 7 || j + n > 7)
+                break;
+
             if (board[i + n][j + n].getType() == 6)
                 temp.push_back(board[i + n][j + n].getPos());
 
@@ -162,7 +183,10 @@ vector<string> Field::CalculateMoves(Vector2i pos)
             }
         }
 
-        for (int n = 0; n < 8; n++) { // RIGHT UP square           
+        for (int n = 0; n < 8; n++) { // RIGHT UP SQUARE       
+            if (i + n > 7 || j - n < 0)
+                break;
+
             if (board[i + n][j - n].getType() == 6)
                 temp.push_back(board[i + n][j - n].getPos());
 
@@ -175,7 +199,10 @@ vector<string> Field::CalculateMoves(Vector2i pos)
             }
         }
 
-        for (int n = 0; n < 8; n++) { // LEFT DOWN square        
+        for (int n = 0; n < 8; n++) { // LEFT DOWN SQUARE  
+            if (i - n < 0 || j + n > 7)
+                break;
+
             if (board[i - n][j + n].getType() == 6)
                 temp.push_back(board[i - n][j + n].getPos());
 
@@ -187,40 +214,50 @@ vector<string> Field::CalculateMoves(Vector2i pos)
                 break;
             }
         }
-    }
+
     case 4: // ROOK
-    {
-        int direction = board[i][j].getSide() * 2 - 1;
+
+        direction = board[i][j].getSide() * 2 - 1;
+
 
         for (int n = 0; n < 8; n++) { // Square AHEAD
 
-            if (board[i + n * direction][j].getSide() == board[i][j].getSide() && n != 0)
+            if (i + n * direction < 0 || j < 0)
                 break;
 
-            if (board[i + n * direction][j].getType() == 6)
+            if (board[i + n * direction][j].getSide() == board[i][j].getSide() && n != 0 /*&& direction == -1*/)
+                break;
+
+            if (board[i + n * direction][j].getType() == 6) {
                 temp.push_back(board[i + n * direction][j].getPos());
+            }
 
             if (board[i + n * direction][j].getSide() == enemySide) {
                 temp.push_back(board[i + n * direction][j].getPos());
-                break;
             }
         }
 
-        for (int n = 0; n < 8; n++) { // square BACK
+        for (int n = 0; n < 8; n++) { // Square BACK
+
+            if (i - n * direction < 0 || j < 0)
+                break;
 
             if (board[i - n * direction][j].getSide() == board[i][j].getSide() && n != 0)
                 break;
 
-            if (board[i - n * direction][j].getType() == 6)
+            if (board[i - n * direction][j].getType() == 6) {
                 temp.push_back(board[i - n * direction][j].getPos());
+            }
 
             if (board[i - n * direction][j].getSide() == enemySide) {
                 temp.push_back(board[i - n * direction][j].getPos());
-                break;
             }
         }
 
         for (int n = 0; n < 8; n++) { // LEFT square 
+
+            if (i < 0 || j + n * direction < 0)
+                break;
 
             if (board[i][j + n * direction].getSide() == board[i][j].getSide() && n != 0)
                 break;
@@ -236,6 +273,9 @@ vector<string> Field::CalculateMoves(Vector2i pos)
 
         for (int n = 0; n < 8; n++) { // RIGHT square 
 
+            if (i < 0 || j - n * direction < 0)
+                break;
+
             if (board[i][j - n * direction].getSide() == board[i][j].getSide() && n != 0)
                 break;
 
@@ -247,7 +287,6 @@ vector<string> Field::CalculateMoves(Vector2i pos)
                 break;
             }
         }
-    }
     case 2:// bishop (slon)
     {
         int len = (int)board[i][j].getPos()[0] - 97;
