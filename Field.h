@@ -2,13 +2,10 @@
 #include "Figure.h"
 #include <iostream>
 #include <SFML/Graphics.hpp>
-#include <vector>
+#include <SFML/Audio.hpp>
 #include <string>
-
 using namespace sf;
 using namespace std;
-
-
 
 class Field
 {

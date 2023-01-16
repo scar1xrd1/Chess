@@ -1,12 +1,5 @@
-#include <iostream>
-#include <SFML/Graphics.hpp>
-#include <vector>
-
 #include "Field.h"
 #include "Figure.h"
-
-using namespace sf;
-using namespace std;
 
 //void Fieloperator=(vector<string>& first)
 //{

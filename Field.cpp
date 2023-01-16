@@ -289,11 +289,11 @@ vector<string> Field::CalculateMoves(Vector2i pos)
         }
     case 2:// bishop (slon)
     {
-        int len = (int)board[i][j].getPos()[0] - 97;
-        int iter = 2;
-        int iterVert = 2;
-
         for (int n = 0; n < 8; n++) { // left up 
+            cout << "n - " << n << endl;
+            if (i - n < 0 || j - n < 0) break; // if out of range
+
+
             if (board[i - n][j - n].getType() == 6) temp.push_back(board[i - n][j - n].getPos()); // if the corners are free
 
             if (board[i - n][j - n].getSide() == board[i][j].getSide() && n != 0) break;
@@ -304,7 +304,9 @@ vector<string> Field::CalculateMoves(Vector2i pos)
             }
         }
 
-        for (int n = 0; n < 8; n++) { // right down            
+        for (int n = 0; n < 8; n++) { // right down     
+            if (i + n > 7 || j + n > 7) break; // if out of range
+
             if (board[i + n][j + n].getType() == 6) temp.push_back(board[i + n][j + n].getPos()); // if the corners are free
 
             if (board[i + n][j + n].getSide() == board[i][j].getSide() && n != 0) break;
@@ -315,7 +317,9 @@ vector<string> Field::CalculateMoves(Vector2i pos)
             }
         }
 
-        for (int n = 0; n < 8; n++) { // right up            
+        for (int n = 0; n < 8; n++) { // right up        
+            if (i + n > 7 || j - n < 0) break; // if out of range
+
             if (board[i + n][j - n].getType() == 6) temp.push_back(board[i + n][j - n].getPos()); // if the corners are free
 
             if (board[i + n][j - n].getSide() == board[i][j].getSide() && n != 0) break;
@@ -326,7 +330,9 @@ vector<string> Field::CalculateMoves(Vector2i pos)
             }
         }
 
-        for (int n = 0; n < 8; n++) { // left down            
+        for (int n = 0; n < 8; n++) { // left down  
+            if (i - n < 0 || j + n > 7) break; // if out of range
+
             if (board[i - n][j + n].getType() == 6) temp.push_back(board[i - n][j + n].getPos()); // if the corners are free
 
             if (board[i - n][j + n].getSide() == board[i][j].getSide() && n != 0) break;
