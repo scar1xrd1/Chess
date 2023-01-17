@@ -18,6 +18,8 @@ private:
     int turn;//which side is moving
     string enPassant;//en passant position; "none" by default
 
+    int move_king = 0, move_rook = 0;
+
 public:
     Vector2i posToInts(string pos);
     Figure& getFigure(Vector2i pos) { return board[pos.x][pos.y]; }
