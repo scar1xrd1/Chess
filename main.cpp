@@ -13,7 +13,7 @@
 int main() {
     RenderWindow app(VideoMode(400, 400), "chess");
     //app.setFramerateLimit(60);
-
+    
     Texture t1, t2, t3;
     t1.loadFromFile("images/board.png");
 
@@ -30,7 +30,7 @@ int main() {
     Sprite square(t3);
     Field field;
 
-    field.CalculateMoves("e1");
+    //field.calculateMoves("e1");
 
     while (app.isOpen()) {
         //app.clear();
