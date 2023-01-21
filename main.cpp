@@ -30,7 +30,7 @@ int main() {
     Sprite square(t3);
     Field field;
 
-    field.CalculateMoves("e1");
+    //field.calculateMoves("e1");
 
     while (app.isOpen()) {
         //app.clear();

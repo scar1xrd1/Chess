@@ -8,8 +8,10 @@ Vector2i Field::posToInts(string pos)
     return Vector2i(i, j);
 }
 
-Field::Field() : pawnUpgrade("none"), turn(0), enPassant("none")
+Field::Field() : pawnUpgrade("none"), turn(0), enPassant("none"), gameEnd(-1)
 {
+    kingPos[0] = "e1";//white king
+    kingPos[1] = "e8";//black king
     for (int i = 0; i < 2; i++) {
         for (int j = 0; j < 2; j++)
         {
@@ -42,13 +44,14 @@ Field::Field() : pawnUpgrade("none"), turn(0), enPassant("none")
 
 }
 
-vector<string> Field::CalculateMoves(Vector2i pos)
+vector<string> Field::calculateMoves(Vector2i pos, bool checkLook)
 {
     int i = pos.x;
     int j = pos.y;
     vector<string> possible, temp;
 
     int direction;
+
 
     int dir = board[i][j].getSide() * 2 - 1; // for king and bishop
     int dirRev = -(board[i][j].getSide() * 2 - 1);
@@ -62,20 +65,36 @@ vector<string> Field::CalculateMoves(Vector2i pos)
     case 0:// king
     {
         //moves
-        if (board[i + dir][j].getSide() == enemySide || board[i + dir][j].getType() == 6) //if the square ahead is free
-            temp.push_back(board[i + dir][j].getPos());
-        if (canRev && board[i + dirRev][j].getSide() == enemySide || board[i + dirRev][j].getType() == 6) //if the square behind is free
-            temp.push_back(board[i + dirRev][j].getPos());
+        //if (board[i + dir][j].getSide() == enemySide || board[i + dir][j].getType() >= 6) //if the square ahead is free
+        //    temp.push_back(board[i + dir][j].getPos());
+        //if (canRev && board[i + dirRev][j].getSide() == enemySide || board[i + dirRev][j].getType() >= 6) //if the square behind is free
+        //    temp.push_back(board[i + dirRev][j].getPos());
 
-        for (int k = 0; k < 2; k++) {
-            if (board[i][j - 1 + k * 2].getSide() == enemySide || board[i][j - 1 + k * 2].getType() == 6) // if the flanks are free 
-                temp.push_back(board[i][j - 1 + k * 2].getPos());
+        //for (int k = 0; k < 2; k++) {
+        //    if (board[i][j - 1 + k * 2].getSide() == enemySide || board[i][j - 1 + k * 2].getType() >= 6) // if the flanks are free 
+        //        temp.push_back(board[i][j - 1 + k * 2].getPos());
 
-            if (board[i + dir][j - 1 + k * 2].getSide() == enemySide || board[i + dir][j - 1 + k * 2].getType() == 6) // if the corners are free
-                temp.push_back(board[i + dir][j - 1 + k * 2].getPos());
-            if (canRev && board[i + dirRev][j - 1 + k * 2].getSide() == enemySide || board[i + dirRev][j - 1 + k * 2].getType() == 6) // if the corners are free
-                temp.push_back(board[i + dirRev][j - 1 + k * 2].getPos());
+        //    if (board[i + dir][j - 1 + k * 2].getSide() == enemySide || board[i + dir][j - 1 + k * 2].getType() >= 6) // if the corners are free
+        //        temp.push_back(board[i + dir][j - 1 + k * 2].getPos());
+        //    if (canRev && board[i + dirRev][j - 1 + k * 2].getSide() == enemySide || board[i + dirRev][j - 1 + k * 2].getType() >= 6) // if the corners are free
+        //        temp.push_back(board[i + dirRev][j - 1 + k * 2].getPos());
+        //}
+
+        //cout << i << " j: " << j << endl;
+        for (int k = 0; k < 4; k++)
+        {
+            for (int l = 0; l < 2; l++)
+            {
+                int i1 = i + k % 2 - k / 3 * 2 - l * ((k - 1) % 2);
+                int j1 = j - (k - 1) % 2 - l * ((k - ((k / 3) * 4)) % 2);
+                if (0 <= i1 && i1 <= 7 && 0 <= j1 && j1 <= 7) {
+                    if (board[i1][j1].getSide() == board[i][j].getSide()) continue;
+                    temp.push_back(board[i1][j1].getPos());
+                }
+
+            }
         }
+        cout << temp.size();
         break;
     }
     case 1:// QUEEN
@@ -91,7 +110,7 @@ vector<string> Field::CalculateMoves(Vector2i pos)
             if (board[i + n * direction][j].getSide() == board[i][j].getSide()  /*&& direction == -1*/)
                 break;
 
-            if (board[i + n * direction][j].getType() == 6) {
+            if (board[i + n * direction][j].getType() >= 6) {
                 temp.push_back(board[i + n * direction][j].getPos());
             }
 
@@ -109,7 +128,7 @@ vector<string> Field::CalculateMoves(Vector2i pos)
             if (board[i - n * direction][j].getSide() == board[i][j].getSide())
                 break;
 
-            if (board[i - n * direction][j].getType() == 6) {
+            if (board[i - n * direction][j].getType() >= 6) {
                 temp.push_back(board[i - n * direction][j].getPos());
             }
 
@@ -127,7 +146,7 @@ vector<string> Field::CalculateMoves(Vector2i pos)
             if (board[i][j + n * direction].getSide() == board[i][j].getSide() && n != 0)
                 break;
 
-            if (board[i][j + n * direction].getType() == 6)
+            if (board[i][j + n * direction].getType() >= 6)
                 temp.push_back(board[i][j + n * direction].getPos());
 
             if (board[i][j + n * direction].getSide() == enemySide) {
@@ -144,7 +163,7 @@ vector<string> Field::CalculateMoves(Vector2i pos)
             if (board[i][j - n * direction].getSide() == board[i][j].getSide() && n != 0)
                 break;
 
-            if (board[i][j - n * direction].getType() == 6)
+            if (board[i][j - n * direction].getType() >= 6)
                 temp.push_back(board[i][j - n * direction].getPos());
 
             if (board[i][j - n * direction].getSide() == enemySide) {
@@ -157,7 +176,7 @@ vector<string> Field::CalculateMoves(Vector2i pos)
             if (i - n < 0 || j - n < 0 || i - n > 7 || j - n > 7)
                 break;
 
-            if (board[i - n][j - n].getType() == 6)
+            if (board[i - n][j - n].getType() >= 6)
                 temp.push_back(board[i - n][j - n].getPos());
 
             if (board[i - n][j - n].getSide() == board[i][j].getSide() && n != 0)
@@ -173,7 +192,7 @@ vector<string> Field::CalculateMoves(Vector2i pos)
             if (i + n > 7 || j + n > 7 || i + n < 0 || j + n < 0)
                 break;
 
-            if (board[i + n][j + n].getType() == 6)
+            if (board[i + n][j + n].getType() >= 6)
                 temp.push_back(board[i + n][j + n].getPos());
 
             if (board[i + n][j + n].getSide() == board[i][j].getSide() && n != 0)
@@ -189,7 +208,7 @@ vector<string> Field::CalculateMoves(Vector2i pos)
             if (i + n < 0 || j - n > 7 || i + n > 7 || j - n < 0)
                 break;
 
-            if (board[i + n][j - n].getType() == 6)
+            if (board[i + n][j - n].getType() >= 6)
                 temp.push_back(board[i + n][j - n].getPos());
 
             if (board[i + n][j - n].getSide() == board[i][j].getSide() && n != 0)
@@ -205,7 +224,7 @@ vector<string> Field::CalculateMoves(Vector2i pos)
             if (i - n > 7 || j + n < 0 || i - n < 0 || j + n > 7)
                 break;
 
-            if (board[i - n][j + n].getType() == 6)
+            if (board[i - n][j + n].getType() >= 6)
                 temp.push_back(board[i - n][j + n].getPos());
 
             if (board[i - n][j + n].getSide() == board[i][j].getSide() && n != 0)
@@ -213,82 +232,6 @@ vector<string> Field::CalculateMoves(Vector2i pos)
 
             if (board[i - n][j + n].getSide() == enemySide) {
                 temp.push_back(board[i - n][j + n].getPos());
-                break;
-            }
-        }
-        break;
-    }
-    case 4: // ROOK
-    {
-        direction = board[i][j].getSide() * 2 - 1;
-
-
-        for (int n = 1; n <= 7; n++) { // Square AHEAD
-
-            if (i + n * direction < 0 || j < 0 || i + n * direction > 7 || j > 7)
-                break;
-
-            if (board[i + n * direction][j].getSide() == board[i][j].getSide()  /*&& direction == -1*/)
-                break;
-
-            if (board[i + n * direction][j].getType() == 6) {
-                temp.push_back(board[i + n * direction][j].getPos());
-            }
-
-            if (board[i + n * direction][j].getSide() == enemySide) {
-                temp.push_back(board[i + n * direction][j].getPos());
-                break;
-            }
-        }
-
-        for (int n = 1; n <= 7; n++) { // Square BACK
-
-            if (i - n * direction < 0 || j < 0 || i - n * direction > 7 || j > 7)
-                break;
-
-            if (board[i - n * direction][j].getSide() == board[i][j].getSide())
-                break;
-
-            if (board[i - n * direction][j].getType() == 6) {
-                temp.push_back(board[i - n * direction][j].getPos());
-            }
-
-            if (board[i - n * direction][j].getSide() == enemySide) {
-                temp.push_back(board[i - n * direction][j].getPos());
-                break;
-            }
-        }
-
-        for (int n = 1; n <= 7; n++) { // LEFT square 
-
-            if (i < 0 || j + n * direction < 0 || i > 7 || j + n * direction > 7)
-                break;
-
-            if (board[i][j + n * direction].getSide() == board[i][j].getSide() && n != 0)
-                break;
-
-            if (board[i][j + n * direction].getType() == 6)
-                temp.push_back(board[i][j + n * direction].getPos());
-
-            if (board[i][j + n * direction].getSide() == enemySide) {
-                temp.push_back(board[i][j + n * direction].getPos());
-                break;
-            }
-        }
-
-        for (int n = 1; n <= 7; n++) { // RIGHT square 
-
-            if (i < 0 || j - n * direction < 0 || i > 7 || j - n * direction > 7)
-                break;
-
-            if (board[i][j - n * direction].getSide() == board[i][j].getSide() && n != 0)
-                break;
-
-            if (board[i][j - n * direction].getType() == 6)
-                temp.push_back(board[i][j - n * direction].getPos());
-
-            if (board[i][j - n * direction].getSide() == enemySide) {
-                temp.push_back(board[i][j - n * direction].getPos());
                 break;
             }
         }
@@ -314,7 +257,7 @@ vector<string> Field::CalculateMoves(Vector2i pos)
         for (int n = 0; n < 8; n++) { // right down     
             if (i + n > 7 || j + n > 7) break; // if out of range
 
-            if (board[i + n][j + n].getType() == 6) temp.push_back(board[i + n][j + n].getPos()); // if the corners are free
+            if (board[i + n][j + n].getType() >= 6) temp.push_back(board[i + n][j + n].getPos()); // if the corners are free
 
             if (board[i + n][j + n].getSide() == board[i][j].getSide() && n != 0) break;
 
@@ -327,7 +270,7 @@ vector<string> Field::CalculateMoves(Vector2i pos)
         for (int n = 0; n < 8; n++) { // right up        
             if (i + n > 7 || j - n < 0) break; // if out of range
 
-            if (board[i + n][j - n].getType() == 6) temp.push_back(board[i + n][j - n].getPos()); // if the corners are free
+            if (board[i + n][j - n].getType() >= 6) temp.push_back(board[i + n][j - n].getPos()); // if the corners are free
 
             if (board[i + n][j - n].getSide() == board[i][j].getSide() && n != 0) break;
 
@@ -340,7 +283,7 @@ vector<string> Field::CalculateMoves(Vector2i pos)
         for (int n = 0; n < 8; n++) { // left down  
             if (i - n < 0 || j + n > 7) break; // if out of range
 
-            if (board[i - n][j + n].getType() == 6) temp.push_back(board[i - n][j + n].getPos()); // if the corners are free
+            if (board[i - n][j + n].getType() >= 6) temp.push_back(board[i - n][j + n].getPos()); // if the corners are free
 
             if (board[i - n][j + n].getSide() == board[i][j].getSide() && n != 0) break;
 
@@ -371,16 +314,94 @@ vector<string> Field::CalculateMoves(Vector2i pos)
         }
         break;
     }
+    case 4: // ROOK
+    {
+        direction = board[i][j].getSide() * 2 - 1;
+
+
+        for (int n = 1; n <= 7; n++) { // Square AHEAD
+
+            if (i + n * direction < 0 || j < 0 || i + n * direction > 7 || j > 7)
+                break;
+
+            if (board[i + n * direction][j].getSide() == board[i][j].getSide()  /*&& direction == -1*/)
+                break;
+
+            if (board[i + n * direction][j].getType() >= 6) {
+                temp.push_back(board[i + n * direction][j].getPos());
+            }
+
+            if (board[i + n * direction][j].getSide() == enemySide) {
+                temp.push_back(board[i + n * direction][j].getPos());
+                break;
+            }
+        }
+
+        for (int n = 1; n <= 7; n++) { // Square BACK
+
+            if (i - n * direction < 0 || j < 0 || i - n * direction > 7 || j > 7)
+                break;
+
+            if (board[i - n * direction][j].getSide() == board[i][j].getSide())
+                break;
+
+            if (board[i - n * direction][j].getType() >= 6) {
+                temp.push_back(board[i - n * direction][j].getPos());
+            }
+
+            if (board[i - n * direction][j].getSide() == enemySide) {
+                temp.push_back(board[i - n * direction][j].getPos());
+                break;
+            }
+        }
+
+        for (int n = 1; n <= 7; n++) { // LEFT square 
+
+            if (i < 0 || j + n * direction < 0 || i > 7 || j + n * direction > 7)
+                break;
+
+            if (board[i][j + n * direction].getSide() == board[i][j].getSide() && n != 0)
+                break;
+
+            if (board[i][j + n * direction].getType() >= 6)
+                temp.push_back(board[i][j + n * direction].getPos());
+
+            if (board[i][j + n * direction].getSide() == enemySide) {
+                temp.push_back(board[i][j + n * direction].getPos());
+                break;
+            }
+        }
+
+        for (int n = 1; n <= 7; n++) { // RIGHT square 
+
+            if (i < 0 || j - n * direction < 0 || i > 7 || j - n * direction > 7)
+                break;
+
+            if (board[i][j - n * direction].getSide() == board[i][j].getSide() && n != 0)
+                break;
+
+            if (board[i][j - n * direction].getType() >= 6)
+                temp.push_back(board[i][j - n * direction].getPos());
+
+            if (board[i][j - n * direction].getSide() == enemySide) {
+                temp.push_back(board[i][j - n * direction].getPos());
+                break;
+            }
+        }
+        break;
+    }
     case 5://pawn (peshka)
     {
         int direction = board[i][j].getSide() * 2 - 1;
         //moves
-        if (board[i + direction][j].getType() == 6) {//if the square ahead is free
-            temp.push_back(board[i + direction][j].getPos());
+        if (checkLook) {
+            if (board[i + direction][j].getType() == 6) {//if the square ahead is free
+                temp.push_back(board[i + direction][j].getPos());
 
-            if (i == 7 - (board[i][j].getSide() * 5 + 1)) {//if the pawn haven`t made a move yet then it can move by 2 ahead
-                if (board[i + 2 * direction][j].getType() == 6) {//if the square ahead is free
-                    temp.push_back(board[i + 2 * direction][j].getPos());
+                if (i == 7 - (board[i][j].getSide() * 5 + 1)) {//if the pawn haven`t made a move yet then it can move by 2 ahead
+                    if (board[i + 2 * direction][j].getType() == 6) {//if the square ahead is free
+                        temp.push_back(board[i + 2 * direction][j].getPos());
+                    }
                 }
             }
         }
@@ -395,15 +416,32 @@ vector<string> Field::CalculateMoves(Vector2i pos)
         }
     }
     }
-
-    for (string n : temp) {
-        if (true) {//here must be a function that looks for check if this move made
-            if (getFigure(n).getType() != 0) {//you can`t beat the king
-                possible.push_back(n);
-                cout << n << endl;
+    Figure beatenTemp;
+    for (string n : temp) {//temp is ok, problem is here
+        beatenTemp = getFigure(n);//remember the beaten figure
+        //string n1 = n;
+        swapFigures(board[i][j], getFigure(n));//make a move to check what happens
+        if (checkLook) {
+            if (check(getFigure(n).getSide())) {//here must be a function that looks for check if this move made
+                swapFigures(getFigure(n), board[i][j]);//return to starting position
+                getFigure(n) = beatenTemp;//return the beaten figure
+                continue;
             }
         }
+
+        swapFigures(getFigure(n), board[i][j]);//return to starting position
+        getFigure(n) = beatenTemp;//return the beaten figure
         //break;
+        if (checkLook && getFigure(n).getType() == 0) continue;//you can`t beat the king while making a move
+        possible.push_back(n);
+        cout << n << endl;
+        //continue;
+
+    }
+
+    if (board[i][j].getType() == 0 && checkLook) {
+        cout << temp.size() << endl;
+
     }
 
     cout << "------------------------\n";
@@ -412,23 +450,60 @@ vector<string> Field::CalculateMoves(Vector2i pos)
     return possible;
 }
 
+bool Field::check(int side)
+{
+    const int enemySide = (side + 1) % 2;
+    for (int i = 0; i < 8; i++)//rows
+    {
+        for (int j = 0; j < 8; j++)//columns
+        {
+            if (board[i][j].getSide() == enemySide) {//enemy side
+                if (moveIsPossible(posToInts(board[i][j].getPos()), kingPos[side], false))
+                    return true;
+            }
+        }
+    }
+    return false;
+}
+
+bool Field::endCheck()
+{
+    int enemySide = (turn + 1) % 2;
+
+    for (int i = 0; i < 8; i++)
+    {
+        for (int j = 0; j < 8; j++)
+        {
+            if (board[i][j].getSide() == enemySide) continue;
+            vector<string> possibleCurr = calculateMoves(Vector2i(i, j), true);
+            if (possibleCurr[0] != "none") {
+                return false;
+            }
+        }
+    }
+    //if there`s no possible moves
+    bool checkTemp = check(turn);
+    if (checkTemp) gameEnd = enemySide;//we have a winner!
+    else gameEnd = 2;//draw
+    return true;
+}
+
+inline bool Field::moveIsPossible(string current, bool boolCheck) { return moveIsPossible(Vector2i(clickedY[0], clickedX[0]), current, boolCheck); }
+
+bool Field::moveIsPossible(Vector2i clicked, string current, bool boolCheck)
+{
+    vector<string> possibleMoves = calculateMoves(clicked, boolCheck);
+    return find(possibleMoves.begin(), possibleMoves.end(), current) != possibleMoves.end();
+}
+
 void Field::mouseClick(Vector2i pos)
 {
-    
-
+    if (gameEnd != -1) {
+        cout << "game`s ended already!" << endl;
+        return;
+    }
     int i = pos.y / 50;
     int j = pos.x / 50;
-
-    cout << "TYPE\t" << board[i][j].getType() << endl;
-
-    if (clickedX.size() != 0)
-    {
-        cout << "X | Y\t" << clickedX[0] << " | " << clickedY[0] << endl;
-    }
-
-    cout << "I | J\t" << i << " | " << j << endl;
-
-    if (board[i][j].getType() == 4) cout << "ABOBA\n";
 
     if (clickedX.size() == 0) {//the first click
         if (turn != board[i][j].getSide()) return;//you can`t move in the opponent`s turn
@@ -439,7 +514,6 @@ void Field::mouseClick(Vector2i pos)
         }
     }
     else if (!(i == clickedY[0] && j == clickedX[0])) {//the second clicked tile is not the same as first
-        vector<string> possible = CalculateMoves(Vector2i(clickedY[0], clickedX[0]));
 
         if (move_rook == 0 && move_king == 0 && board[clickedY[0]][clickedX[0]].getType() == 0 && board[i][j].getType() == 4) // if these figures have not yet moved
         {
@@ -448,25 +522,25 @@ void Field::mouseClick(Vector2i pos)
 
             if (board[i][j].getPos() == "h1" || board[i][j].getPos() == "h8")
             {
-                for (int i = 1; i < 3; i++) if (board[clickedY[0]][clickedX[0] + i].getType() != 6) path_clear = false; 
-                
+                for (int i = 1; i < 3; i++) if (board[clickedY[0]][clickedX[0] + i].getType() != 6) path_clear = false;
+
                 if (path_clear) // if the path of the king to the rook is free
-                {                 
-                    swap(board[i][j], board[clickedY[0]][clickedX[0]+1]);
-                    swap(board[clickedY[0]][clickedX[0]], board[i][j-1]);
+                {
+                    swap(board[i][j], board[clickedY[0]][clickedX[0] + 1]);
+                    swap(board[clickedY[0]][clickedX[0]], board[i][j - 1]);
 
                     board[i][j].setPos(board[clickedY[0]][clickedX[0]].getPos());
                     board[clickedY[0]][clickedX[0]].setPos(temp);//swap button coordinates  
                 }
-            }            
+            }
             else if (board[i][j].getPos() == "a1" || board[i][j].getPos() == "a8")
             {
-                for (int i = 1; i < 4; i++) if (board[clickedY[0]][clickedX[0] - i].getType() != 6) path_clear = false; 
-                
+                for (int i = 1; i < 4; i++) if (board[clickedY[0]][clickedX[0] - i].getType() != 6) path_clear = false;
+
                 if (path_clear) // if the path of the king to the rook is free
                 {
-                    swap(board[i][j], board[clickedY[0]][clickedX[0]-1]);
-                    swap(board[clickedY[0]][clickedX[0]], board[i][j+2]);
+                    swap(board[i][j], board[clickedY[0]][clickedX[0] - 1]);
+                    swap(board[clickedY[0]][clickedX[0]], board[i][j + 2]);
 
                     board[i][j].setPos(board[clickedY[0]][clickedX[0]].getPos());
                     board[clickedY[0]][clickedX[0]].setPos(temp);//swap button coordinates
@@ -476,25 +550,18 @@ void Field::mouseClick(Vector2i pos)
             turn = (turn + 1) % 2;
         }
 
-        if (find(possible.begin(), possible.end(), board[i][j].getPos()) != possible.end()) {//target is succesful
+
+        if (moveIsPossible(board[i][j].getPos(), true)) {//target is succesful
             if (board[clickedY[0]][clickedX[0]].getType() == 0) move_king++;
             if (board[clickedY[0]][clickedX[0]].getType() == 4) move_rook++;
-
+            
             if (board[clickedY[0]][clickedX[0]].getType() == 5) {//pawn
                 if (board[i][j].getType() == 7) {
                     //board[i][j].getSide() * 2 - 1 converts 0 to - 1 and 1 to 1 to know direction of pawn moving
                     getFigure(Vector2i(i + ((turn + 1) % 2) * 2 - 1, j)).makeEmpty();
                 }
             }
-            if (board[i][j].getType() != 6) board[i][j].makeEmpty();
-
-            std::swap(board[i][j], board[clickedY[0]][clickedX[0]]);
-
-            string temp = board[i][j].getPos();
-
-            board[i][j].setPos(board[clickedY[0]][clickedX[0]].getPos());
-
-            board[clickedY[0]][clickedX[0]].setPos(temp);//swap button coordinates
+            swapFigures(board[clickedY[0]][clickedX[0]], board[i][j]);//move figure
 
             Figure newPos = board[i][j];
             if (newPos.getType() == 5 && (newPos.getPos()[1] == '1' || newPos.getPos()[1] == '8'))//it`s pawn on the edge line
@@ -512,7 +579,10 @@ void Field::mouseClick(Vector2i pos)
                 }
             }
 
+            if (newPos.getType() == 0) kingPos[turn] = newPos.getPos();
+
             turn = (turn + 1) % 2;
+            cout << turn << endl;
             if (enPassant != "none" && posToInts(enPassant).x / 3 != turn) {//on the next move after the en passant make it empty
                 if (getFigure(enPassant).getType() == 7) getFigure(enPassant).makeEmpty();
                 enPassant = "none";
@@ -522,4 +592,22 @@ void Field::mouseClick(Vector2i pos)
     clickedX.clear();
     clickedY.clear();///annulate the clicks
 
+    if (endCheck()) cout << "result is " << gameEnd << endl;
+    else checked = check(turn);
+}
+
+void Field::swapFigures(Figure& moving, Figure& beaten)
+{
+    if (beaten.getType() != 6) beaten.makeEmpty();
+
+    std::swap(beaten, moving);
+
+    string temp = beaten.getPos();
+
+    beaten.setPos(moving.getPos());
+
+    moving.setPos(temp);//swap button coordinates
+    if (beaten.getType() == 0) {
+        kingPos[beaten.getSide()] = beaten.getPos();
+    }
 }
