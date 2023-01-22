@@ -518,36 +518,41 @@ void Field::mouseClick(Vector2i pos)
         if (move_rook == 0 && move_king == 0 && board[clickedY[0]][clickedX[0]].getType() == 0 && board[i][j].getType() == 4) // if these figures have not yet moved
         {
             bool path_clear = true;
+            bool Check = check(board[i][j].getSide());
             string temp = board[i][j].getPos();
 
             if (board[i][j].getPos() == "h1" || board[i][j].getPos() == "h8")
             {
                 for (int i = 1; i < 3; i++) if (board[clickedY[0]][clickedX[0] + i].getType() != 6) path_clear = false;
 
-                if (path_clear) // if the path of the king to the rook is free
+                if (path_clear && !Check) // if the path of the king to the rook is free
                 {
                     swap(board[i][j], board[clickedY[0]][clickedX[0] + 1]);
                     swap(board[clickedY[0]][clickedX[0]], board[i][j - 1]);
 
                     board[i][j].setPos(board[clickedY[0]][clickedX[0]].getPos());
                     board[clickedY[0]][clickedX[0]].setPos(temp);//swap button coordinates  
+
+                    turn = (turn + 1) % 2;
                 }
             }
             else if (board[i][j].getPos() == "a1" || board[i][j].getPos() == "a8")
             {
                 for (int i = 1; i < 4; i++) if (board[clickedY[0]][clickedX[0] - i].getType() != 6) path_clear = false;
 
-                if (path_clear) // if the path of the king to the rook is free
+                if (path_clear && !Check) // if the path of the king to the rook is free
                 {
                     swap(board[i][j], board[clickedY[0]][clickedX[0] - 1]);
                     swap(board[clickedY[0]][clickedX[0]], board[i][j + 2]);
 
                     board[i][j].setPos(board[clickedY[0]][clickedX[0]].getPos());
                     board[clickedY[0]][clickedX[0]].setPos(temp);//swap button coordinates
+
+                    turn = (turn + 1) % 2;
                 }
             }
 
-            turn = (turn + 1) % 2;
+            
         }
 
 
