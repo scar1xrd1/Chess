@@ -527,13 +527,35 @@ void Field::mouseClick(Vector2i pos)
 
                 if (path_clear && !Check) // if the path of the king to the rook is free
                 {
-                    swap(board[i][j], board[clickedY[0]][clickedX[0] + 1]);
-                    swap(board[clickedY[0]][clickedX[0]], board[i][j - 1]);
+                    int k = 1;
+                    for (k; k < 3; k++)
+                    {
+                        if (path_clear)
+                        {
+                            //clickedX[0]++;
+                            swapFigures(board[clickedY[0]][clickedX[0] + k - 1], board[clickedY[0]][clickedX[0] + k]);
+                            if (check(board[i][j].getSide()))
+                            {
+                                path_clear = false;
+                                break;
+                            }
+                        }
+                    }
 
-                    board[i][j].setPos(board[clickedY[0]][clickedX[0]].getPos());
-                    board[clickedY[0]][clickedX[0]].setPos(temp);//swap button coordinates  
+                    if (!check(board[i][j].getSide())) swapFigures(board[clickedY[0]][clickedX[0] + k - 1], board[clickedY[0]][clickedX[0]]);
+                    else swapFigures(board[clickedY[0]][clickedX[0] + k], board[clickedY[0]][clickedX[0]]);
 
-                    turn = (turn + 1) % 2;
+                    if (path_clear)
+                    {
+                        swap(board[i][j], board[clickedY[0]][clickedX[0] + 1]);
+                        swap(board[clickedY[0]][clickedX[0]], board[i][j - 1]);
+
+                        board[i][j].setPos(board[clickedY[0]][clickedX[0]].getPos());
+                        board[clickedY[0]][clickedX[0]].setPos(temp);//swap button coordinates  
+
+                        turn = (turn + 1) % 2;
+                    }
+                    else return;
                 }
             }
             else if (board[i][j].getPos() == "a1" || board[i][j].getPos() == "a8")
@@ -542,24 +564,46 @@ void Field::mouseClick(Vector2i pos)
 
                 if (path_clear && !Check) // if the path of the king to the rook is free
                 {
-                    swap(board[i][j], board[clickedY[0]][clickedX[0] - 1]);
-                    swap(board[clickedY[0]][clickedX[0]], board[i][j + 2]);
+                    int k = 1;
+                    for (k; k < 3; k++)
+                    {
+                        if (path_clear)
+                        {
+                            //clickedX[0]++;
+                            swapFigures(board[clickedY[0]][clickedX[0] - k + 1], board[clickedY[0]][clickedX[0] - k]);
+                            if (check(board[i][j].getSide()))
+                            {
+                                path_clear = false;
+                                break;
+                            }
+                        }
+                    }
 
-                    board[i][j].setPos(board[clickedY[0]][clickedX[0]].getPos());
-                    board[clickedY[0]][clickedX[0]].setPos(temp);//swap button coordinates
+                    if (!check(board[i][j].getSide())) swapFigures(board[clickedY[0]][clickedX[0] - k + 1], board[clickedY[0]][clickedX[0]]);
+                    else swapFigures(board[clickedY[0]][clickedX[0] - k], board[clickedY[0]][clickedX[0]]);
 
-                    turn = (turn + 1) % 2;
+                    if (path_clear)
+                    {
+                        swap(board[i][j], board[clickedY[0]][clickedX[0] - 1]);
+                        swap(board[clickedY[0]][clickedX[0]], board[i][j + 2]);
+
+                        board[i][j].setPos(board[clickedY[0]][clickedX[0]].getPos());
+                        board[clickedY[0]][clickedX[0]].setPos(temp);//swap button coordinates  
+
+                        turn = (turn + 1) % 2;
+                    }
+                    else return;
                 }
             }
 
-            
+
         }
 
 
         if (moveIsPossible(board[i][j].getPos(), true)) {//target is succesful
             if (board[clickedY[0]][clickedX[0]].getType() == 0) move_king++;
             if (board[clickedY[0]][clickedX[0]].getType() == 4) move_rook++;
-            
+
             if (board[clickedY[0]][clickedX[0]].getType() == 5) {//pawn
                 if (board[i][j].getType() == 7) {
                     //board[i][j].getSide() * 2 - 1 converts 0 to - 1 and 1 to 1 to know direction of pawn moving
@@ -600,6 +644,7 @@ void Field::mouseClick(Vector2i pos)
     if (endCheck()) cout << "result is " << gameEnd << endl;
     else checked = check(turn);
 }
+
 
 void Field::swapFigures(Figure& moving, Figure& beaten)
 {
