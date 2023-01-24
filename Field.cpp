@@ -645,6 +645,7 @@ void Field::mouseClick(Vector2i pos)
     else checked = check(turn);
 }
 
+
 void Field::swapFigures(Figure& moving, Figure& beaten)
 {
     if (beaten.getType() != 6) beaten.makeEmpty();
